@@ -10,20 +10,20 @@ namespace SQL_teleBOT
 {
     static class ConnectionWithDB
     {
-        public static void Create()
+        public static void CreateDB()
         {
-            if (File.Exists(@"C:\Users\User\Desktop\Глеб для учебы\SQL\LearnSQL_telegramBot\Test.db"))
+            if (File.Exists(@"C:\Прог\repositorySQL\LearnSQL_telegramBot\DataBase.db"))
                 Console.WriteLine("DB exists");
             else
             {
-                SQLiteConnection.CreateFile(@"C:\Users\User\Desktop\Глеб для учебы\SQL\LearnSQL_telegramBot\Test.db");
+                SQLiteConnection.CreateFile(@"C:\Прог\repositorySQL\LearnSQL_telegramBot\DataBase.db");
                 Console.WriteLine("DB was created successfully");
-                SQLiteConnection connect = new SQLiteConnection(@"Data Source=C:\Users\User\Desktop\Глеб для учебы\SQL\LearnSQL_telegramBot\Test.db; Version=3;");
+                SQLiteConnection connect = new SQLiteConnection(@"Data Source=C:\Прог\repositorySQL\LearnSQL_telegramBot\DataBase.db; Version=3;");
                 connect.Open(); 
                 SQLiteCommand command;
 
                 command = new SQLiteCommand(
-                "CREATE TABLE \"users\" (\"id\" INTEGER PRIMARY KEY AUTOINCREMENT, \"nickname\" TEXT, \"request\" TEXT)", connect);
+                "CREATE TABLE \"Messages\" (\"id\" INTEGER PRIMARY KEY AUTOINCREMENT, \"nickname\" TEXT, \"messageText\" TEXT)", connect);
                 command.ExecuteNonQuery();
 
                 command = new SQLiteCommand(
@@ -146,12 +146,12 @@ namespace SQL_teleBOT
 
         public static string WhatOperator(string s)
         {
-            SQLiteConnection connect = new SQLiteConnection(@"Data Source=C:\Users\User\Desktop\Глеб для учебы\SQL\LearnSQL_telegramBot\Test.db; Version=3;");
+            SQLiteConnection connect = new SQLiteConnection(@"Data Source=C:\Прог\repositorySQL\LearnSQL_telegramBot\DataBase.db; Version=3;");
             connect.Open();
             SQLiteCommand command;
             command = new SQLiteCommand("SELECT \"info\" FROM \"operatorsInSQL\" WHERE \"operator\" = '\"" + s + "\"'", connect);
             SQLiteDataReader reader;
-            string result = " ";
+            string result = "";
             reader = command.ExecuteReader(); 
             while (reader.Read())
             {
@@ -163,15 +163,33 @@ namespace SQL_teleBOT
             return result;
         }
 
-        public static void Input(string nickname, string request)
+        public static void Input(string nickname, string messageText)
         {
-            SQLiteConnection connect = new SQLiteConnection(@"Data Source=C:\Users\User\Desktop\Глеб для учебы\SQL\LearnSQL_telegramBot\Test.db; Version=3;");
+            SQLiteConnection connect = new SQLiteConnection(@"Data Source=C:\Прог\repositorySQL\LearnSQL_telegramBot\DataBase.db; Version=3;");
             connect.Open();
             SQLiteCommand command;
-            command = new SQLiteCommand("INSERT INTO \"users\"(\"nickname\", \"request\") " +
-               "VALUES ('\"" + nickname + "\"', '\"" + request + "\"')", connect);
+            command = new SQLiteCommand("INSERT INTO \"Messages\"(\"nickname\", \"messageText\") " +
+               "VALUES ('" + nickname + "', '" + messageText + "')", connect);
             command.ExecuteNonQuery();
             connect.Close();
+        }
+        public static string getMessages()
+        {
+            SQLiteConnection connect = new SQLiteConnection(@"Data Source=C:\Прог\repositorySQL\LearnSQL_telegramBot\DataBase.db; Version=3;");
+            connect.Open();
+            SQLiteCommand command;
+            command = new SQLiteCommand("SELECT * FROM \"Messages\"", connect);
+            SQLiteDataReader reader;
+            string result = "";
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                result += (@"
+" +reader["nickname"].ToString() + " написал: \"" + reader["messageText"].ToString() + "\"");
+            }
+            reader.Close();
+            connect.Close();
+            return result;
         }
     }
 }
